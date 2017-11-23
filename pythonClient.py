@@ -65,35 +65,38 @@ def runClientFTP():
         print("Connected to server")
 
 def Main():
-    host = '127.0.0.1'
+    host = 'localhost'
     port = 5000
 
     s = socket.socket()
     s.connect((host,port))
 
-    filename = str(input("Enter the file's name: "))
+    filename = input("Enter the file's name: ")
+    byteName = str.encode(filename)
     if filename != 'q':
-        s.send(filename)
+        s.send(byteName)
         #Wait to see if the file exists or not
         data = s.recv(1024)     #Receive 1024 bytes
-        if data[:6] == 'EXISTS':    #If the first 6 bytes are EXISTS
-            filesize = long(data[6:])
-            message = str(input("File Exists, " + str(filesize) + "Bytes, download? (Y/N) >"))
-            if message == 'Y':
-                s.send('OK')
-                f = open('new_'+filename, 'wb')
+        #if data[:6] == 'EXISTS':    #If the first 6 bytes are EXISTS
+        filesize = int(data[6:])
+        message = str(input("File Exists, " + str(filesize) + "Bytes, download? (Y/N) >"))
+        if message == 'Y':
+            okMessage = 'OK'
+            okMessage = str.encode(okMessage)
+            s.send(okMessage)
+            f = open('new_'+filename, 'wb')
+            data = s.recv(1024)
+            totalRecv = len(data)
+            f.write(data)
+            #if there is more than 1024 bytes, receive more
+            while totalRecv < filesize:
                 data = s.recv(1024)
-                totalRecv = len(data)
+                totalRecv += len(data)
                 f.write(data)
-                #if there is more than 1024 bytes, receive more
-                while totalRecv < filesize:
-                    data = s.recv(1024)
-                    totalRecv += len(data)
-                    f.write(data)
-                    print("{0:.2f}".format((totalRecv / float(filesize)) * 100) + "% Done")
-                print("Download Complete")
-        else:
-                print("File does not exist")
+                print("{0:.2f}".format((totalRecv / float(filesize)) * 100) + "% Done")
+            print("Download Complete")
+    else:
+            print("File does not exist")
     s.close()
 if __name__=="__main__":
     Main()
