@@ -72,7 +72,11 @@ def runServerSocket():
 def RetrFile(name, sock):
     filename = sock.recv(1024)
     if os.path.isfile(filename):
-        sock.send("Exists " + str(os.path.getsize(filename)))
+        fileInt = os.path.getsize(filename)
+        fileStr = 'EXISTS ' + str(fileInt)
+        byteName = str.encode(fileStr)
+        sock.send(byteName) #Wants to send a str, not bytes
+        #sock.send("Exists " + str(os.path.getsize(filename)))
         userResponse = sock.recv(1024)
         if userResponse[:2] == 'OK':    #Check first two bytes to see if it's okay
             with open(filename, 'rb') as f:
@@ -81,8 +85,8 @@ def RetrFile(name, sock):
                 while bytesToSend != "":    #If file exceeds 1024 bytes, grab another 1024 bytes
                     bytesToSend = f.read(1024)
                     sock.send(bytesToSend)
-    else:   #If file doesn't exist
-        sock.send("ERR")
+    #else:   #If file doesn't exist
+    #    sock.send("ERR")
     sock.close()
 
 def Main():
