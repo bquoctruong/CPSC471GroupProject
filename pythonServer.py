@@ -70,7 +70,7 @@ def runServerSocket():
     connectionSocket.close()
 
 def RetrFile(name, sock):
-    filename = socket.recv(1024)
+    filename = sock.recv(1024)
     if os.path.isfile(filename):
         sock.send("Exists " + str(os.path.getsize(filename)))
         userResponse = sock.recv(1024)
@@ -86,7 +86,7 @@ def RetrFile(name, sock):
     sock.close()
 
 def Main():
-    host = '127.0.0.1'
+    host = 'localhost'
     port = 5000
 
     s = socket.socket()
